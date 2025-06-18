@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 
 const app = express();
+app.use(express.json());
 app.use(
   cors({
     origin: ["http://localhost:3000", "http://localhost:5173"],
@@ -10,15 +11,15 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
-app.use(express.json());
+
 
 app.get("/", (req, res) => {
   res.send("Server is working!");
 });
 
-const authRoutes = require("./routes/auth"); // ← Import
-const ideaRoutes = require("./routes/ideas"); // ← Fix variable name
-app.use("/auth", authRoutes); // ← Mount auth
+const authRoutes = require("./routes/auth"); 
+const ideaRoutes = require("./routes/ideas"); 
+app.use("/auth", authRoutes); 
 app.use("/ideas", ideaRoutes);
 
 const PORT = 5000;

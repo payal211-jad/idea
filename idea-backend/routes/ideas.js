@@ -5,6 +5,47 @@ const authenticate = require("../middleware/auth");
 
 const route = express.Router();
 
+// Get stats for all users (must be before /:id route)
+route.get("/stats/all", authenticate, (req, res) => {
+  console.log("📊 Getting stats for all ideas");
+  const query = `
+    SELECT status, COUNT(*) as count
+    FROM idea_db
+    GROUP BY status
+    ORDER BY status
+  `;
+
+  db.query(query, [], (err, results) => {
+    if (err) {
+      console.error("Error fetching all stats:", err);
+      return res.status(500).json({ error: "Failed to fetch all stats" });
+    }
+    console.log("All stats results:", results);
+    res.json(results || []);
+  });
+});
+
+// Get stats for logged-in user (must be before /:id route)
+route.get("/stats", authenticate, (req, res) => {
+  console.log(`📊 Getting stats for user ${req.user.id}`);
+  const query = `
+    SELECT status, COUNT(*) as count
+    FROM idea_db
+    WHERE user_id = ?
+    GROUP BY status
+    ORDER BY status
+  `;
+
+  db.query(query, [req.user.id], (err, results) => {
+    if (err) {
+      console.error("Error fetching user stats:", err);
+      return res.status(500).json({ error: "Failed to fetch stats" });
+    }
+    console.log("User stats results:", results);
+    res.json(results || []);
+  });
+});
+
 // GET all ideas (everyone's)
 route.get("/all", authenticate, (req, res) => {
   try {
@@ -28,7 +69,7 @@ route.get("/all", authenticate, (req, res) => {
     res.status(500).json({ error: "Server error processing request" });
   }
 });
-
+/*
 // Get all ideas for logged-in user
 route.get("/", authenticate, (req, res) => {
   console.log(` GET /ideas (user_id=${req.user.id})`);
@@ -43,7 +84,7 @@ route.get("/", authenticate, (req, res) => {
       res.json(rows);
     }
   );
-});
+});*/
 
 // Get single idea by ID (Must be after other GET routes to avoid path conflicts)
 route.get("/:id", authenticate, (req, res) => {
@@ -108,7 +149,7 @@ route.put("/:id", authenticate, (req, res) => {
     return res.status(400).json({ error: "Title is required." });
   }
 
-  console.log(`📥 PUT /ideas/${ideaId}:`, req.body);
+  console.log(` PUT /ideas/${ideaId}:`, req.body);
 
   // First verify the idea belongs to the user
   db.query(
@@ -191,5 +232,4 @@ route.delete("/:id", authenticate, (req, res) => {
     }
   );
 });
-
 module.exports = route;

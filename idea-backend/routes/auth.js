@@ -5,10 +5,10 @@ const db = require("../db");
 require("dotenv").config();
 
 const router = express.Router();
-const JWT_SECRET = process.env.JWT_SECRET || "supersecretkey";
+const JWT_SECRET = process.env.JWT_SECRET||"supersecretkey";
 
 // Register
-router.post("/register", async (req, res) => {
+router.post("/register", async (req, res) => { 
   const { name, email, password } = req.body;
   const hashed = await bcrypt.hash(password, 10);
   db.query(

@@ -4,11 +4,9 @@ const api = axios.create({
   baseURL: 'http://localhost:5000',
 });
 
-// List of public routes that don't need authentication
 const publicRoutes = ['/login', '/register'];
 
 api.interceptors.request.use(config => {
-  // Don't check for token on public routes
   if (publicRoutes.some(route => config.url.includes(route))) {
     return config;
   }
@@ -42,7 +40,7 @@ api.interceptors.response.use(
     }
 
     if (error.response?.status === 403 || error.response?.status === 401) {
-      console.error('Authentication error:', error.response?.status);
+      console.error(' Authentication error:', error.response?.status);
       localStorage.removeItem('token');
       window.location.href = '/login';
     }
